@@ -677,41 +677,6 @@ def kaynak_detay(pid):
 
 
 
-"""
-cursor.execute(""
-        SELECT 
-            kt.KAdi,
-            SUM(pk.planlanan_miktar),
-            COALESCE(SUM(kk.kullanilan_miktar), 0),
-            kt.tip,
-            (SUM(pk.planlanan_miktar) - COALESCE(SUM(kk.kullanilan_miktar), 0)) AS fark
-        FROM proje_kaynak pk
-        JOIN kaynak k ON pk.KAID = k.KAID
-        JOIN kaynak_tanim kt ON k.KTipID = kt.KTipID
-        LEFT JOIN kaynak_kullanim kk ON kk.PKID = pk.PKID
-        WHERE pk.PID = %s
-        GROUP BY kt.KAdi, kt.tip
-        ORDER BY FIELD(kt.tip, 'Malzeme', 'Ekipman', 'Personel'), kt.KAdi
-    "", (pid,))
-"""
-"""
-cursor.execute(""
-        SELECT 
-            kt.KAdi,
-            pk.planlanan_miktar,
-            COALESCE(SUM(kk.kullanilan_miktar), 0) AS mevcut_miktar,
-            kt.tip,
-            (pk.planlanan_miktar - COALESCE(SUM(kk.kullanilan_miktar), 0)) AS fark
-        FROM proje_kaynak pk
-        JOIN kaynak k ON pk.KAID = k.KAID
-        JOIN kaynak_tanim kt ON k.KTipID = kt.KTipID
-        LEFT JOIN kaynak_kullanim kk ON kk.PKID = pk.PKID
-        WHERE pk.PID = %s
-        AND pk.planlanan_miktar > 0
-        GROUP BY kt.KAdi, pk.planlanan_miktar, kt.tip
-        ORDER BY FIELD(kt.tip, 'Malzeme', 'Ekipman', 'Personel'), kt.KAdi
-    "", (pid,))
-"""
 
 
 @app.route("/proje/<int:pid>/kaynak-kullanim-ekle", methods=["POST"])
@@ -779,101 +744,6 @@ def kaynak_kullanim_ekle(pid):
     db.commit()
 
     return redirect(f"/proje/{pid}/kaynak-detay")
-
-
-
-
-
-
-
-
-"""
-@app.route("/proje/<int:pid>/kaynak-kullanim-ekle", methods=["POST"])
-def kaynak_kullanim_ekle(pid):
-    if "KID" not in session:
-        return redirect("/login")
-
-    kaid_tanim = request.form.get("kaid")
-    tarih = request.form.get("tarih")
-    kullanilan_miktar = request.form.get("kullanilan_miktar")
-    aciklama = request.form.get("aciklama")
-
-    if not kaid_tanim:
-        return "Bir kaynak seçilmedi!", 400
-
-    # kaynak_tanimdan kaynak adı ve tipi al
-    cursor.execute("SELECT KAdi, tip FROM kaynak_tanim WHERE KTipID = %s", (kaid_tanim,))
-    kaynak_tanim = cursor.fetchone()
-    if not kaynak_tanim:
-        return "Kaynak bulunamadı!", 400
-
-    kaynak_adi, kaynak_tipi = kaynak_tanim
-
-    # kaynak tablosunda var mı kontrol et
-    cursor.execute(""
-        SELECT KAID FROM kaynak
-        WHERE PID = %s AND KAdi = %s
-    "", (pid, kaynak_adi))
-    mevcut_kaynak = cursor.fetchone()
-
-    if mevcut_kaynak:
-        proje_kaynak_kaid = mevcut_kaynak[0]
-    else:
-        cursor.execute(""
-            INSERT INTO kaynak (PID, KTipID, KAdi, miktar, KDurumu)
-            VALUES (%s, %s, %s, 0, 'aktif')
-        "", (pid, kaid_tanim, kaynak_adi))
-
-        db.commit()
-        proje_kaynak_kaid = cursor.lastrowid
-
-    # 🔥 Burada proje_kaynak tablosunda var mı kontrol ediyoruz
-    cursor.execute(""
-        SELECT 1 FROM proje_kaynak
-        WHERE PID = %s AND KAID = %s
-    "", (pid, proje_kaynak_kaid))
-    proje_kaynak_kontrol = cursor.fetchone()
-
-    if not proje_kaynak_kontrol:
-        cursor.execute(""
-            INSERT INTO proje_kaynak (PID, KAID, planlanan_miktar)
-            VALUES (%s, %s, %s)
-        "", (pid, proje_kaynak_kaid, "0"))
-
-        db.commit()
-
-    # Şimdi kullanım kaydını ekle
-    cursor.execute(""
-        INSERT INTO kaynak_kullanim (KAID, tarih, kullanilan_miktar, aciklama)
-        VALUES (%s, %s, %s, %s)
-    "", (proje_kaynak_kaid, tarih, kullanilan_miktar, aciklama))
-    db.commit()
-
-    return redirect(f"/proje/{pid}/kaynak-detay")
-"""
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1213,24 +1083,6 @@ def kullanicilar():
     } for row in cursor.fetchall()]
 
     return render_template("kullanicilar.html", kullanicilar=kullanicilar)
-
-"""
-@app.route("/kullanicilar")
-def kullanicilar():
-    if "KID" not in session:
-        return redirect("/login")
-
-    cursor.execute("SELECT KID, KAdi, email, rol FROM kullanici")
-    kullanicilar = [{
-        "KID": row[0],
-        "KAdi": row[1],
-        "email": row[2],
-        "rol": row[3]
-    } for row in cursor.fetchall()]
-
-    return render_template("kullanicilar.html", kullanicilar=kullanicilar)
-"""
-
 
 
 
