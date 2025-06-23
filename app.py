@@ -12,8 +12,8 @@ from email.mime.multipart import MIMEMultipart
 
 smtp_server = "smtp.gmail.com"
 smtp_port = 587
-sender_email = "muhammedsatdemir02@gmail.com"
-app_password = "cbac ngpb qcza nunq"
+sender_email = ""
+app_password = ""
 
 app = Flask(__name__)
 
