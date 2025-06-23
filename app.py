@@ -21,7 +21,7 @@ app = Flask(__name__)
 db = mysql.connector.connect(
     host="localhost",
     user="root",   
-    password="AdminReis97",  #MySQL şifrensi
+    password="",  #MySQL şifrensi
     database="insaat"
 )
 
