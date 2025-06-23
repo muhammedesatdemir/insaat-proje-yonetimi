@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ proje.PAdi }} - PDF Raporu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .info-box, .card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .col-half {
+            width: 49%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #aaa;
+            padding: 6px;
+            text-align: left;
+        }
+
+        .malzeme { color: #1a53ff; font-weight: bold; }
+        .ekipman { color: #28a745; font-weight: bold; page-break-before: always; }
+        .personel { color: #ffc107; font-weight: bold; }
+
+        .page-break { page-break-before: always; }
+    </style>
+</head>
+<body>
+
+    <h2>{{ proje.PAdi }}</h2>
+
+    <div class="row">
+        <div class="col-half">
+            <div class="info-box">
+                <p><strong>Başlangıç Tarihi:</strong> {{ proje.baslangic }}</p>
+                <p><strong>Bitiş Tarihi:</strong> {{ proje.bitis }}</p>
+                <p><strong>Durum:</strong> {{ proje.durum }}</p>
+                <p><strong>Açıklama:</strong> {{ proje.aciklama }}</p>
+            </div>
+        </div>
+
+        <div class="col-half">
+            <div class="info-box">
+                <h4>Planlanan vs Mevcut Karşılaştırması</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Kaynak</th>
+                            <th>Planlanan</th>
+                            <th>Mevcut</th>
+                            <th>Fark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set malzemeler = planlamalar | selectattr('tip', 'equalto', 'Malzeme') | list %}
+                        {% set ekipmanlar = planlamalar | selectattr('tip', 'equalto', 'Ekipman') | list %}
+                        {% set personeller = planlamalar | selectattr('tip', 'equalto', 'Personel') | list %}
+
+                        {% if malzemeler %}
+                        <tr><td colspan="4" class="malzeme">Malzemeler</td></tr>
+                        {% for p in malzemeler %}
+                        <tr>
+                            <td>{{ p.KAdi }}</td>
+                            <td>{{ p.planlanan_miktar }}</td>
+                            <td>{{ p.mevcut_miktar }}</td>
+                            <td>{{ p.fark }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+
+                        {% if ekipmanlar %}
+                        <tr><td colspan="4" class="ekipman">Ekipmanlar</td></tr>
+                        {% for p in ekipmanlar %}
+                        <tr>
+                            <td>{{ p.KAdi }}</td>
+                            <td>{{ p.planlanan_miktar }}</td>
+                            <td>{{ p.mevcut_miktar }}</td>
+                            <td>{{ p.fark }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+
+                        {% if personeller %}
+                        <tr><td colspan="4" class="personel">Personeller</td></tr>
+                        {% for p in personeller %}
+                        <tr>
+                            <td>{{ p.KAdi }}</td>
+                            <td>{{ p.planlanan_miktar }}</td>
+                            <td>{{ p.mevcut_miktar }}</td>
+                            <td>{{ p.fark }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="section">
+        <div class="info-box">
+            <h4>Aşamalar</h4>
+            {% if asamalar %}
+                <ul>
+                    {% for a in asamalar %}
+                    <li>
+                        <strong>{{ a.tarih }}</strong> - {{ a.aciklama }}<br>
+                        <small>Ekleyen: {{ a.ekleyen_ad }} ({{ a.ekleyen_rol }})</small>
+                        {% if a.onaylayan_ad %}
+                        <br><small>✔ Onaylayan: {{ a.onaylayan_ad }} ({{ a.onaylayan_rol }})</small>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Henüz aşama girilmemiş.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="info-box">
+            <h4>Kullanım Zaman Çizelgesi</h4>
+            {% if kullanimlar %}
+                <ul>
+                    {% for k in kullanimlar %}
+                    <li>
+                        <strong>{{ k.tarih }}</strong> - <strong>{{ k.kaynagin_adi }}</strong> - {{ k.kullanilan_miktar }}<br>
+                        <small>{{ k.aciklama }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Henüz kayıt yok.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    
+
+</body>
+</html>

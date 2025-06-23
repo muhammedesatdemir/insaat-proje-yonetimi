@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ proje.PAdi }} - Rapor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-white">
+
+<div class="container py-5">
+
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">{{ proje.PAdi }}</h2>
+  
+    <div class="row">
+      <!-- SOL TARAF -->
+      <div class="col-md-6">
+        <!-- Proje Bilgileri -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <p><strong>Başlangıç Tarihi:</strong> {{ proje.baslangic }}</p>
+            <p><strong>Bitiş Tarihi:</strong> {{ proje.bitis }}</p>
+            <p><strong>Durum:</strong> {{ proje.durum }}</p>
+            <p><strong>Açıklama:</strong> {{ proje.aciklama }}</p>
+          </div>
+        </div>
+  
+        <!-- Aşamalar -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5>Aşamalar</h5>
+            {% if asamalar %}
+              <ul class="list-unstyled">
+                {% for a in asamalar %}
+                <li class="mb-2">
+                  <strong>{{ a.tarih }}</strong> - {{ a.aciklama }}<br>
+                  <small>Ekleyen: {{ a.ekleyen_ad }} ({{ a.ekleyen_rol }})</small><br>
+                  {% if a.onaylayan_ad %}<small>✔ Onaylayan: {{ a.onaylayan_ad }} ({{ a.onaylayan_rol }})</small>{% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>Henüz aşama girilmemiş.</p>
+            {% endif %}
+          </div>
+        </div>
+  
+        <!-- Zaman Çizelgesi -->
+        <div class="card">
+          <div class="card-body">
+            <h5>Kullanım Zaman Çizelgesi</h5>
+            {% if kullanimlar %}
+              <ul class="list-unstyled">
+                {% for k in kullanimlar %}
+                <li class="mb-2">
+                  <strong>{{ k.tarih }}</strong> - <strong>{{ k.kaynagin_adi }}</strong> - {{ k.kullanilan_miktar }}
+                  <br><small>{{ k.aciklama }}</small>
+                </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>Henüz kullanım kaydı yok.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+  
+      <!-- SAĞ TARAF -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5>Planlanan vs Mevcut Karşılaştırması</h5>
+            {% if planlamalar %}
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>Kaynak</th>
+                  <th>Planlanan</th>
+                  <th>Mevcut</th>
+                  <th>Fark</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% set malzemeler = planlamalar | selectattr('tip', 'equalto', 'Malzeme') | list %}
+                {% set ekipmanlar = planlamalar | selectattr('tip', 'equalto', 'Ekipman') | list %}
+                {% set personeller = planlamalar | selectattr('tip', 'equalto', 'Personel') | list %}
+  
+                {% if malzemeler %}
+                <tr><td colspan="4" class="fw-bold text-primary">Malzemeler</td></tr>
+                {% for p in malzemeler %}
+                <tr>
+                  <td>{{ p.KAdi }}</td>
+                  <td>{{ p.planlanan_miktar }}</td>
+                  <td>{{ p.mevcut_miktar }}</td>
+                  <td>{{ p.fark }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+  
+                {% if ekipmanlar %}
+                <tr><td colspan="4" class="fw-bold text-success">Ekipmanlar</td></tr>
+                {% for p in ekipmanlar %}
+                <tr>
+                  <td>{{ p.KAdi }}</td>
+                  <td>{{ p.planlanan_miktar }}</td>
+                  <td>{{ p.mevcut_miktar }}</td>
+                  <td>{{ p.fark }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+  
+                {% if personeller %}
+                <tr><td colspan="4" class="fw-bold text-warning">Personeller</td></tr>
+                {% for p in personeller %}
+                <tr>
+                  <td>{{ p.KAdi }}</td>
+                  <td>{{ p.planlanan_miktar }}</td>
+                  <td>{{ p.mevcut_miktar }}</td>
+                  <td>{{ p.fark }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+            {% else %}
+              <p>Henüz planlama yapılmamış.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="mt-4">
+    <a href="/raporlar" class="btn btn-outline-secondary btn-back">← Projeler Listesine Dön</a>
+    {% if proje.PID %}
+    <a href="/rapor/{{ proje.PID }}/pdf" target="_blank" class="btn btn-success">PDF Görüntüle/İndir</a>
+    {% endif %}
+  </div>
+  
+</div>
+
+</body>
+</html>

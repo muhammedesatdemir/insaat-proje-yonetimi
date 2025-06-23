@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ proje.PAdi }} - Kaynak Yönetimi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fc; font-family: 'Segoe UI', sans-serif; }
+    .ust-kisim { background-color: #3366cc; color: white; padding: 20px; text-align: center; border-radius: 0 0 30px 30px; margin-bottom: 30px; }
+    .icerik-kutu { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+    .timeline { border-left: 3px solid #3366cc; padding-left: 15px; list-style: none; }
+    .timeline-item {
+    margin-bottom: 20px;
+    position: relative;
+    padding-left: 20px; /* <<< yazıyı biraz sağa alıyoruz */
+    }
+    .timeline-item::before {
+    content: "";
+    position: absolute;
+    top: 8px; /* <<< noktayı biraz aşağı alıyoruz */
+    left: -10px;
+    width: 12px;
+    height: 12px;
+    background: #3366cc;
+    border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ust-kisim">
+  <h3>Kaynak Yönetimi</h3>
+  <p><strong>{{ proje.PAdi }}</strong></p>
+</div>
+
+<div class="container">
+  <a href="/kaynaklar" class="btn btn-outline-secondary mb-4">← Projelere Geri Dön</a>
+
+  <div class="row">
+    <!-- SOL TARAF -->
+    <div class="col-md-6">
+      <div class="icerik-kutu">
+        <h5>Yeni Kaynak Kullanımı Ekle</h5>
+        <form method="POST" action="/proje/{{ proje.PID }}/kaynak-kullanim-ekle">
+          <div class="mb-3">
+            <label>Kaynak Tipi</label>
+            <select id="kaynakTipKullanim" class="form-select" onchange="updateAltListeKullanim()" required>
+              <option value="">Seçiniz</option>
+              <option value="Malzeme">Malzeme</option>
+              <option value="Ekipman">Ekipman</option>
+              <option value="Personel">Personel</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label>Kaynak Seç</label>
+            <select name="kaid" id="altListeKullanim" class="form-select" required>
+              <option value="">Önce Tip Seçiniz</option>
+              {% for kaynak in kullanim_kaynaklar|unique(attribute='KAdi') %}
+              <option value="{{ kaynak.KTipID }}" data-tip="{{ kaynak.tip }}">{{ kaynak.KAdi }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label>Tarih</label>
+            <input type="date" name="tarih" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label>Kullanılan Miktar</label>
+            <input type="number" step="0.01" min="0" name="kullanilan_miktar" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label>Açıklama</label>
+            <textarea name="aciklama" class="form-control" required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-success">Kaydı Ekle</button>
+        </form>
+      </div>
+
+      <div class="icerik-kutu">
+        <h5>Kullanım Zaman Çizelgesi</h5>
+        {% if kullanimlar %}
+          <ul class="timeline">
+            {% for kullan in kullanimlar %}
+              <li class="timeline-item">
+                <strong>{{ kullan.tarih }}</strong> - <strong>{{ kullan.kaynagin_adi }}</strong> - {{ kullan.kullanilan_miktar }}
+                <div><small>{{ kullan.aciklama }}</small></div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>Henüz kullanım kaydı bulunmuyor.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- SAĞ TARAF -->
+    <div class="col-md-6">
+      <div class="icerik-kutu mb-4">
+        <h5>Kaynak Planlama (Sadece Yöneticiler)</h5>
+        {% if session['rol'] == 'yönetici' %}
+        <form method="POST" action="/proje/{{ proje.PID }}/kaynak-planla">
+          <div class="mb-3">
+            <label>Kaynak Tipi</label>
+            <select id="kaynakTipPlanlama" class="form-select" onchange="updateAltListePlanlama()" required>
+              <option value="">Seçiniz</option>
+              <option value="Malzeme">Malzeme</option>
+              <option value="Ekipman">Ekipman</option>
+              <option value="Personel">Personel</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label>Kaynak Seç</label>
+            <select name="kaid" id="altListePlanlama" class="form-select" required>
+              <option value="">Önce Tip Seçiniz</option>
+              {% for kaynak in planlama_kaynaklar|unique(attribute='KAdi') %}
+                <option value="{{ kaynak.KTipID }}" data-tip="{{ kaynak.tip }}">{{ kaynak.KAdi }}</option>
+              {% endfor %}
+            </select>
+            
+          </div>
+
+          <div class="mb-3">
+            <label>Planlanan Miktar</label>
+            <input type="number" step="0.01" min="0" name="planlanan_miktar" class="form-control" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Planla</button>
+        </form>
+        {% else %}
+          <p class="text-danger">Planlama yapma yetkiniz yok.</p>
+        {% endif %}
+      </div>
+
+      <div class="icerik-kutu">
+        <h5>Planlanan vs Mevcut Karşılaştırması</h5>
+        {% if planlamalar %}
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Kaynak</th>
+              <th>Planlanan</th>
+              <th>Mevcut</th>
+              <th>Fark</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set malzemeler = planlamalar | selectattr('tip', 'equalto', 'Malzeme') | list %}
+            {% set ekipmanlar = planlamalar | selectattr('tip', 'equalto', 'Ekipman') | list %}
+            {% set personeller = planlamalar | selectattr('tip', 'equalto', 'Personel') | list %}
+
+            {% if malzemeler %}
+            <tr><td colspan="4" class="fw-bold text-primary">Malzemeler</td></tr>
+            {% for p in malzemeler %}
+            <tr>
+              <td>{{ p.KAdi }}</td>
+              <td>{{ p.planlanan_miktar }}</td>
+              <td>{{ p.mevcut_miktar if p.mevcut_miktar is not none else "-" }}</td>
+              <td>{{ p.fark if p.fark is not none else "-" }}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+
+            {% if ekipmanlar %}
+            <tr><td colspan="4" class="fw-bold text-success">Ekipmanlar</td></tr>
+            {% for p in ekipmanlar %}
+            <tr>
+              <td>{{ p.KAdi }}</td>
+              <td>{{ p.planlanan_miktar }}</td>
+              <td>{{ p.mevcut_miktar if p.mevcut_miktar is not none else "-" }}</td>
+              <td>{{ p.fark if p.fark is not none else "-" }}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+
+            {% if personeller %}
+            <tr><td colspan="4" class="fw-bold text-warning">Personeller</td></tr>
+            {% for p in personeller %}
+            <tr>
+              <td>{{ p.KAdi }}</td>
+              <td>{{ p.planlanan_miktar }}</td>
+              <td>{{ p.mevcut_miktar if p.mevcut_miktar is not none else "-" }}</td>
+              <td>{{ p.fark if p.fark is not none else "-" }}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+          </tbody>
+        </table>
+        {% else %}
+          <p>Henüz planlama yapılmadı.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function updateAltListeKullanim() {
+  var tipSecimi = document.getElementById("kaynakTipKullanim").value;
+  var altListe = document.getElementById("altListeKullanim");
+  var opsiyonlar = altListe.getElementsByTagName("option");
+
+  for (var i = 0; i < opsiyonlar.length; i++) {
+    var tip = opsiyonlar[i].getAttribute("data-tip");
+    opsiyonlar[i].style.display = (tip == tipSecimi || opsiyonlar[i].value == "") ? "block" : "none";
+  }
+  altListe.value = "";
+}
+
+function updateAltListePlanlama() {
+  var tipSecimi = document.getElementById("kaynakTipPlanlama").value;
+  var altListe = document.getElementById("altListePlanlama");
+  var opsiyonlar = altListe.getElementsByTagName("option");
+
+  for (var i = 0; i < opsiyonlar.length; i++) {
+    var tip = opsiyonlar[i].getAttribute("data-tip");
+    opsiyonlar[i].style.display = (tip == tipSecimi || opsiyonlar[i].value == "") ? "block" : "none";
+  }
+  altListe.value = "";
+}
+
+window.onload = function() {
+  updateAltListeKullanim();
+  updateAltListePlanlama();
+};
+</script>
+
+</body>
+</html>

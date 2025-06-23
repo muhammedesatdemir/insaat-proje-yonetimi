@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kullanıcılar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+  <h2 class="text-center mb-4">Kullanıcılar</h2>
+
+  <div class="container mt-4">
+    <a href="/panel" class="btn btn-outline-secondary btn-back">← Panele Dön</a>
+  </div>
+  <div class="text-end mb-4">
+    <a href="/kullanici_ekle" class="btn btn-success">Yeni Kullanıcı Ekle</a>   
+  </div>
+
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Ad</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>İşlemler</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for kullanici in kullanicilar %}
+      <tr>
+        <td>{{ kullanici.KAdi }}</td>
+        <td>{{ kullanici.email }}</td>
+        <td>{{ kullanici.rol }}</td>
+        <td>
+          {% if kullanici.rol == "çalışan" %}
+            <a href="/kullanici_duzenle/{{ kullanici.KID }}" class="btn btn-primary btn-sm">Düzenle</a>
+            <form action="/kullanici_sil/{{ kullanici.KID }}" method="post" style="display:inline;">
+              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')">Sil</button>
+            </form>
+          {% else %}
+            <span class="text-muted">-</span>
+          {% endif %}
+        </td>        
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
+
+
+
+
+<!--<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kullanıcılar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+  <h2 class="text-center mb-4">Kullanıcılar</h2>
+
+  <div class="text-end mb-4">
+    <a href="/kullanici_ekle" class="btn btn-success">Yeni Kullanıcı Ekle</a>
+    <a href="/panel" class="btn btn-secondary">Panele Dön</a>
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Ad</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>İşlemler</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for kullanici in kullanicilar %}
+      <tr>
+        <td>{{ kullanici.KAdi }}</td> 
+        <td>{{ kullanici.email }}</td>
+        <td>{{ kullanici.rol }}</td>
+        <td>
+          <a href="/kullanici_duzenle/{{ kullanici.KID }}" class="btn btn-primary btn-sm">Düzenle</a>
+          <form action="/kullanici_sil/{{ kullanici.KID }}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')">Sil</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
+-->

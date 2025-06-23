@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kaynak Planla</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      background-color: #f8f9fc;
+    }
+    .ust-kisim {
+      text-align: center;
+      background: #3366cc;
+      color: white;
+      padding: 20px;
+      border-radius: 0 0 30px 30px;
+      margin-bottom: 20px;
+    }
+    .icerik-kutu {
+      background-color: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ust-kisim">
+  <h3>Kaynak Planlama</h3>
+  <p><strong>{{ proje_adi }}</strong> projesi için</p>
+</div>
+
+<div class="container">
+
+  <a href="/proje/{{ pid }}" class="btn btn-outline-secondary mb-3">← Projeye Dön</a>
+
+  <div class="icerik-kutu">
+    <h5>Yeni Kaynak Planla</h5>
+    <form method="POST">
+      <div class="mb-3">
+        <label for="kaid" class="form-label">Kaynak Seç</label>
+        <select name="kaid" class="form-select" required>
+          <optgroup label="Malzemeler">
+            {% for m in malzeme %}
+              <option value="{{ m[0] }}">{{ m[1] }}</option>
+            {% endfor %}
+          </optgroup>
+          <optgroup label="Ekipmanlar">
+            {% for e in ekipman %}
+              <option value="{{ e[0] }}">{{ e[1] }}</option>
+            {% endfor %}
+          </optgroup>
+          <optgroup label="Personeller">
+            {% for p in personel %}
+              <option value="{{ p[0] }}">{{ p[1] }}</option>
+            {% endfor %}
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="planlanan_miktar" class="form-label">Planlanan Miktar</label>
+        <input type="text" name="planlanan_miktar" class="form-control" placeholder="örn: 200 torba" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary">📌 Planla</button>
+    </form>
+  </div>
+
+</div>
+
+</body>
+</html>

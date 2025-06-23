@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Projeler - Raporlar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+  <h2 class="text-center mb-4">Proje Raporları</h2>
+
+  <div class="row">
+    {% for proje in projeler %}
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ proje.PAdi }}</h5>
+          <p class="card-text">
+            Başlangıç: {{ proje.baslangic }}<br>
+            Bitiş: {{ proje.bitis }}<br>
+            Durum: {{ proje.durum }}
+          </p>
+          <a href="/rapor/{{ proje.PID }}" class="btn btn-primary w-100">Raporu Görüntüle</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="container mt-4">
+    <a href="/panel" class="btn btn-outline-secondary btn-back">← Panele Dön</a>
+  </div>
+</div>
+
+</body>
+</html>
